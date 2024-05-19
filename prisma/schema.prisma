@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider              = "zod-prisma"
+  output                = "./zod"
+  relationModel         = true
+  modelCase             = "camelCase"
+  modelSuffix           = "Schema"
+  useDecimalJs          = true
+  prismaJsonNullability = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String  @id
+  email          String  @unique
+  hashedPassword String
+  name           String?
+
+  parentsNo String?
+  usertype  USER_TYPE @default(Student)
+  sessions  Session[]
+
+  createdComplaints  Complaint[] @relation("CreatedComplaints")
+  targetedComplaints Complaint[] @relation("TargetedComplaints")
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+enum USER_TYPE {
+  Student
+  Department
+}
+
+enum STATUS_TYPE {
+  SENT
+  PENDING
+  DONE
+}
+
+model Complaint {
+  id String @id @default(cuid())
+
+  name      String
+  createdBy User   @relation(name: "CreatedComplaints", fields: [userId], references: [id])
+  userId    String
+
+  status STATUS_TYPE @default(SENT)
+
+  target   User   @relation(name: "TargetedComplaints", fields: [targetId], references: [id])
+  targetId String
+}
