@@ -54,6 +54,9 @@ const AddCategoryForm = async ({ onSuccessFulSubmit }: IProps) => {
   }
 
   const users = trpc.computers.getUsers.useQuery();
+
+  if (users.isLoading) return "loading";
+
   return (
     <Form {...form}>
       <form>
@@ -99,7 +102,7 @@ const AddCategoryForm = async ({ onSuccessFulSubmit }: IProps) => {
               </FormItem>
             )}
           /> */}
-        </div>
+
         <FormField
           control={form.control}
           name="submittedTo"
@@ -128,6 +131,7 @@ const AddCategoryForm = async ({ onSuccessFulSubmit }: IProps) => {
           )}
         />
 
+</div>
         <Button className="my-2" onClick={form.handleSubmit(onSubmit)}>
           {/* {mutateAddCategory.isPending ? (
             <Loader className="animate-spin" />

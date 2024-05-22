@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/trpc/api";
 import { trpc } from "@/lib/trpc/client";
+import { useEffect } from "react";
 
 const AddCategoryFormSchema = z.object({
   name: z.string(),
@@ -44,13 +45,18 @@ const EditCategoryForm = async ({ onSuccessFulSubmit, id }: IProps) => {
 
   const form = useForm<z.infer<typeof AddCategoryFormSchema>>({
     resolver: zodResolver(AddCategoryFormSchema),
-    defaultValues: {
-      createdBy: complaint.data?.userId,
-      name: complaint.data?.name,
-      status: String(complaint.data?.status),
-      submittedTo: complaint.data?.targetId,
-    },
   });
+
+  useEffect(() => {
+    if (complaint.data) {
+      form.reset({
+        createdBy: complaint.data.userId,
+        name: complaint.data.name,
+        status: String(complaint.data.status),
+        submittedTo: complaint.data.targetId,
+      });
+    }
+  }, [complaint.data, form]);
 
   const mutateComplaint = trpc.computers.editComplaint.useMutation();
 
@@ -93,7 +99,7 @@ const EditCategoryForm = async ({ onSuccessFulSubmit, id }: IProps) => {
               </FormItem>
             )}
           />
-        </div>
+        
         <FormField
           control={form.control}
           name="submittedTo"
@@ -103,7 +109,7 @@ const EditCategoryForm = async ({ onSuccessFulSubmit, id }: IProps) => {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value || complaint.data?.targetId}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Submitted to" />
@@ -131,7 +137,7 @@ const EditCategoryForm = async ({ onSuccessFulSubmit, id }: IProps) => {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value|| complaint.data?.status}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Status" />
@@ -146,7 +152,7 @@ const EditCategoryForm = async ({ onSuccessFulSubmit, id }: IProps) => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /></div>
 
         <Button className="my-2" onClick={form.handleSubmit(onSubmit)}>
           {/* {mutateAddCategory.isPending ? (

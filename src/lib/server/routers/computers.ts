@@ -21,7 +21,7 @@ export const computersRouter = router({
     return complaints;
   }),
   getUsers: publicProcedure.query(async ({ ctx }) => {
-    const users = await ctx.db.user.findMany();
+    const users = await ctx.db.user.findMany({where:{usertype:'Department'}});
     return users;
   }),
 
@@ -67,8 +67,6 @@ export const computersRouter = router({
         data: {
           name: input.name,
           targetId: input.submittedTo,
-
-          userId: ctx.session?.user.id,
           // @ts-ignore
           status: input.status as unknown as string,
         },
